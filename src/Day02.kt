@@ -9,9 +9,10 @@ data class Command(
     val amount: Int
 )
 
-data class Location(
+data class CurrentCourse(
     val depth: Int,
     val x: Int, // horizontal
+    val aim: Int
 )
 
 fun parseCommands(input: List<String>): List<Command> = input.map { raw ->
@@ -26,22 +27,27 @@ fun parseCommands(input: List<String>): List<Command> = input.map { raw ->
     Command(command, rawAmount.toInt())
 }
 
-fun applyCommand(current: Location, command: Command): Location = when (command.direction) {
-    Direction.FORWARD -> current.copy(x = current.x + command.amount)
-    Direction.DOWN -> current.copy(depth = current.depth + command.amount)
-    Direction.UP -> current.copy(depth = current.depth - command.amount)
-}
+fun applyCommand(current: CurrentCourse, command: Command): CurrentCourse =
+    when (command.direction) {
+        Direction.FORWARD -> current.copy(
+            x = current.x + command.amount,
+            depth = current.depth + (current.aim * command.amount)
+        )
+        Direction.DOWN -> current.copy(aim = current.aim + command.amount)
+        Direction.UP -> current.copy(aim = current.aim - command.amount)
+    }
 
 fun main() {
     val input = readInput("Day02")
     val commands = parseCommands(input)
 
 
-    val finalLocation = commands.fold(Location(0, 0)) { current, command ->
+    val finalCourse = commands.fold(CurrentCourse(0, 0, 0)) { current, command ->
         applyCommand(current, command)
     }
 
-    val answerOne = finalLocation.x * finalLocation.depth
+    val answerTwo = finalCourse.x * finalCourse.depth
 
-    println("Answer (part one): $answerOne")
+    // for answer one, see history of this file
+    println("Answer (part two): $answerTwo")
 }
